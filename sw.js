@@ -55,3 +55,14 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+// Periodic Background Sync Event Handler
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'update-cache') {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.addAll(ASSETS);
+      })
+    );
+  }
+});
