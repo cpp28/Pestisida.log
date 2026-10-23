@@ -1,0 +1,2 @@
+# Pestisida.log
+Pencatatan pestisida
