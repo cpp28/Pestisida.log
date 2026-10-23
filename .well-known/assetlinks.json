@@ -1,8 +1,12 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "io.github.cpp28.twa",
-        "sha256_cert_fingerprints": ["2A:66:0D:02:C4:5B:3A:A6:5A:D5:FC:0A:8F:C4:C6:FC:9A:CB:24:4D:35:25:98:8A:D5:A1:BD:1B:D3:C6:33:00"]
-      }
-    }]
+[
+{
+"relation": ["delegate_permission/common.handle_all_urls"],
+"target": {
+"namespace": "android_app",
+"package_name": "io.github.cpp28.twa",
+"sha256_cert_fingerprints": [
+"2A:66:0D:02:C4:5B:3A:A6:5A:D5:FC:0A:8F:C4:C6:FC:9A:CB:24:4D:35:25:98:8A:D5:A1:BD:1B:D3:C6:33:00"
+]
+}
+}
+]
