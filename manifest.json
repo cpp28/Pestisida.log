@@ -15,6 +15,7 @@
 "orientation": "portrait-primary",
 "lang": "id",
 "dir": "ltr",
+"iarc_rating_id": "00000000-0000-0000-0000-000000000000",
 "categories": [
 "productivity",
 "utilities",
@@ -26,6 +27,11 @@
 "platform": "play",
 "url": "https://play.google.com/store/apps/details?id=com.cpp28.pestilog",
 "id": "com.cpp28.pestilog"
+}
+],
+"scope_extensions": [
+{
+"origin": "cpp28.github.io"
 }
 ],
 "launch_handler": {
@@ -44,6 +50,37 @@
 {
 "protocol": "web+pestilog",
 "url": "./index.html?data=%s"
+}
+],
+"share_target": {
+"action": "./index.html",
+"method": "GET",
+"params": {
+"title": "title",
+"text": "text",
+"url": "url"
+}
+},
+"edge_side_panel": {
+"preferred_width": 400
+},
+"widgets": [
+{
+"name": "PestiLog Widget",
+"short_name": "PestiLog",
+"description": "Akses cepat aplikasi PestiLog",
+"tag": "pestilog-widget",
+"template": "widget-template",
+"ms_ac_template": "widget-template.json",
+"data": "widget-data.json",
+"type": "application/json",
+"screenshots": [
+{
+"src": "icon-512.png",
+"sizes": "512x512",
+"label": "Tampilan Widget PestiLog"
+}
+]
 }
 ],
 "shortcuts": [
