@@ -8,8 +8,8 @@
 "display": "standalone",
 "display_override": [
 "tabbed",
-"window-controls-overlay",
 "standalone",
+"window-controls-overlay",
 "minimal-ui"
 ],
 "note_taking": {
@@ -37,6 +37,9 @@
 "scope_extensions": [
 {
 "origin": "https://cpp28.github.io"
+},
+{
+"origin": "https://*.github.io"
 }
 ],
 "launch_handler": {
