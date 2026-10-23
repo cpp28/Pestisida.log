@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pestilog-v2';
+const CACHE_NAME = 'pestilog-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -34,13 +34,16 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Event - Network First with Cache Fallback (Full Offline Support)
+// Fetch Event - Standard Cache-First Pattern for Offline Detection
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -48,17 +51,12 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          if (event.request.mode === 'navigate') {
-            return caches.match('./index.html');
-          }
-        });
-      })
+      }).catch(() => {
+        if (event.request.mode === 'navigate') {
+          return caches.match('./index.html');
+        }
+      });
+    })
   );
 });
 
@@ -73,7 +71,7 @@ self.addEventListener('periodicsync', (event) => {
   }
 });
 
-// Background Sync Event Handler (Fixes Background Sync check)
+// Background Sync Event Handler
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-pesticide-data') {
     event.waitUntil(
@@ -82,7 +80,7 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-// Push Notifications Event Handler (Fixes Push Notifications check)
+// Push Notifications Event Handler
 self.addEventListener('push', (event) => {
   const title = 'PestiLog';
   const options = {
