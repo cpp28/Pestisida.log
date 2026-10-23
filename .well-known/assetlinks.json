@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "io.github.cpp28.twa",
+        "package_name": "cpp28.github.io",
         "sha256_cert_fingerprints": ["5B:2E:88:93:E6:F9:AE:C2:D1:47:A4:F7:99:34:9F:4B:37:B8:3F:A3:F6:72:38:49:C1:F9:91:30:4B:17:ED:3F"]
       }
     }]
