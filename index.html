@@ -1225,5 +1225,12 @@
                 .replace(/'/g, '&#039;');
         }
     </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Service Worker berhasil terdaftar'))
+      .catch(err => console.log('Gagal mendaftar Service Worker:', err));
+  }
+</script>
 </body>
 </html>
