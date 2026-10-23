@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PestiLog - Sistem Manajemen & Pencatat Pestisida</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Icon -->
+    <link rel="icon" type="image/png" href="icon192.png">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        agrigreen: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 antialiased bg-slate-50">
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toastContent" class="flex items-center justify-between p-4 rounded-xl shadow-lg text-white font-medium text-sm">
+            <div class="flex items-center gap-3">
+                <i id="toastIcon" class="fa-solid fa-circle-check text-lg"></i>
+                <span id="toastMessage">Notifikasi sistem</span>
+            </div>
+            <button onclick="hideToast()" class="text-white/80 hover:text-white ml-3 p-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Application Header Navigation -->
+    <header class="bg-agrigreen-800 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo & Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('inventory')">
+                    <!-- Icon Logo disesuaikan dengan gambar unggahan -->
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shadow-md flex-shrink-0 overflow-hidden flex items-center justify-center">
+                        <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background Gradient -->
+                            <defs>
+                                <linearGradient id="logoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#0f766e" />
+                                    <stop offset="50%" stop-color="#115e59" />
+                                    <stop offset="100%" stop-color="#14532d" />
+                                </linearGradient>
+                                <linearGradient id="tankGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fb923c" />
+                                    <stop offset="100%" stop-color="#ea580c" />
+                                </linearGradient>
+                            </defs>
+                            <rect width="100" height="100" rx="24" fill="url(#logoBg)"/>
+                            
+                            <!-- Daun Kanan Atas -->
+                            <path d="M 62 25 C 62 17, 72 15, 72 23 C 65 23, 62 25, 62 25 Z" fill="#86efac"/>
+                            <path d="M 68 20 C 68 13, 77 12, 76 19 C 71 19, 68 20, 68 20 Z" fill="#4ade80"/>
+                            
+                            <!-- Papan Papan Klip (Clipboard) -->
+                            <rect x="20" y="24" width="40" height="58" rx="6" fill="#ffffff"/>
+                            <rect x="33" y="20" width="14" height="8" rx="2.5" fill="#94a3b8"/>
+                            <circle cx="40" cy="22" r="1.8" fill="#ffffff"/>
+                            
+                            <!-- Daftar Periksa (Checkmarks) -->
+                            <path d="M 26 34 L 29 37 L 35 31" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <line x1="39" y1="34" x2="54" y2="34" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                            
+                            <path d="M 26 46 L 29 49 L 35 43" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <line x1="39" y1="46" x2="54" y2="46" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                            
+                            <path d="M 26 58 L 29 61 L 35 55" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <line x1="39" y1="58" x2="54" y2="58" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                            
+                            <path d="M 26 70 L 29 73 L 35 67" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <line x1="39" y1="70" x2="54" y2="70" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+
+                            <!-- Pensil -->
+                            <g transform="rotate(-35 48 56)">
+                                <rect x="42" y="40" width="6" height="22" rx="1" fill="#38bdf8"/>
+                                <path d="M 42 62 L 45 68 L 48 62 Z" fill="#fde047"/>
+                                <path d="M 44 66 L 45 68 L 46 66 Z" fill="#1e293b"/>
+                            </g>
+                            
+                            <!-- Tangki Semprot (Sprayer Tank) -->
+                            <rect x="52" y="44" width="28" height="36" rx="9" fill="url(#tankGrad)"/>
+                            <!-- Tutup & Tuas Semprotan -->
+                            <rect x="58" y="38" width="16" height="7" rx="2" fill="#c2410c"/>
+                            <path d="M 66 38 L 66 32 M 60 32 L 72 32" stroke="#fdba74" stroke-width="2.5" stroke-linecap="round"/>
+                            <!-- Selang & Nozzle -->
+                            <path d="M 58 42 C 50 40, 50 35, 60 34" stroke="#475569" stroke-width="2" fill="none" stroke-linecap="round"/>
+                            <path d="M 76 40 L 82 36" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
+                            <!-- Bulir Semprotan -->
+                            <circle cx="85" cy="33" r="1" fill="#e0f2fe"/>
+                            <circle cx="88" cy="36" r="1.2" fill="#bae6fd"/>
+                            <circle cx="86" cy="29" r="1" fill="#e0f2fe"/>
+                            
+                            <!-- Pin Larangan Hama (Bebas Hama) -->
+                            <circle cx="66" cy="62" r="8" fill="#ffffff"/>
+                            <circle cx="66" cy="62" r="7" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+                            <line x1="61" y1="67" x2="71" y2="57" stroke="#dc2626" stroke-width="1.8"/>
+                            <!-- Tubuh Hama -->
+                            <ellipse cx="66" cy="62" rx="2.5" ry="3.5" fill="#334155"/>
+                            <circle cx="66" cy="57.5" r="1.5" fill="#334155"/>
+                            
+                            <!-- Daun Kiri Bawah -->
+                            <path d="M 20 72 C 12 70, 15 82, 25 81 C 25 75, 20 72, 20 72 Z" fill="#4ade80"/>
+                            <path d="M 28 76 C 22 76, 23 85, 33 83 C 32 78, 28 76, 28 76 Z" fill="#22c55e"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight tracking-wide">PestiLog</h1>
+                        <p class="text-[11px] text-agrigreen-200">Manajemen Pestisida Digital</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <button onclick="switchTab('inventory')" id="nav-inventory" class="px-3.5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 bg-agrigreen-900 text-white shadow-sm">
+                        <i class="fa-solid fa-boxes-stacked"></i> Daftar Pestisida
+                    </button>
+                    <button onclick="switchTab('crops')" id="nav-crops" class="px-3.5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 text-agrigreen-100 hover:bg-agrigreen-700 hover:text-white">
+                        <i class="fa-solid fa-seedling"></i> Jenis Tanaman
+                    </button>
+                    <button onclick="switchTab('calculator')" id="nav-calculator" class="px-3.5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 text-agrigreen-100 hover:bg-agrigreen-700 hover:text-white">
+                        <i class="fa-solid fa-calculator"></i> Kalkulator Dosis
+                    </button>
+                    <button onclick="switchTab('settings')" id="nav-settings" class="px-3.5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 text-agrigreen-100 hover:bg-agrigreen-700 hover:text-white">
+                        <i class="fa-solid fa-gear"></i> Pengaturan
+                    </button>
+                </nav>
+
+                <!-- Quick Action Header Button -->
+                <div class="flex items-center gap-2">
+                    <button onclick="openModalPesticide()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition shadow flex items-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Tambah Pestisida</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Bottom Tab Navigation -->
+        <div class="md:hidden flex justify-around bg-agrigreen-900 border-t border-agrigreen-700/60 py-1.5 px-1 text-xs">
+            <button onclick="switchTab('inventory')" id="mob-inventory" class="flex flex-col items-center text-white py-1 px-2 rounded-lg font-medium">
+                <i class="fa-solid fa-boxes-stacked text-base mb-0.5"></i>
+                <span class="text-[10px]">Daftar</span>
+            </button>
+            <button onclick="switchTab('crops')" id="mob-crops" class="flex flex-col items-center text-agrigreen-200 py-1 px-2 rounded-lg font-medium">
+                <i class="fa-solid fa-seedling text-base mb-0.5"></i>
+                <span class="text-[10px]">Tanaman</span>
+            </button>
+            <button onclick="switchTab('calculator')" id="mob-calculator" class="flex flex-col items-center text-agrigreen-200 py-1 px-2 rounded-lg font-medium">
+                <i class="fa-solid fa-calculator text-base mb-0.5"></i>
+                <span class="text-[10px]">Dosis</span>
+            </button>
+            <button onclick="switchTab('settings')" id="mob-settings" class="flex flex-col items-center text-agrigreen-200 py-1 px-2 rounded-lg font-medium">
+                <i class="fa-solid fa-gear text-base mb-0.5"></i>
+                <span class="text-[10px]">Pengaturan</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full space-y-6">
+
+        <!-- TAB 1: DAFTAR PESTISIDA -->
+        <section id="tab-inventory" class="space-y-6">
+            <!-- Search & Dynamic Filter Toolbar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 justify-between items-center">
+                <!-- Search Input -->
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" oninput="filterPesticides()" placeholder="Cari merk, tanaman, atau bahan aktif..." class="w-full pl-10 pr-3 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-agrigreen-600 focus:border-transparent transition">
+                </div>
+
+                <!-- Filters & Action Buttons -->
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <select id="filterCategory" onchange="filterPesticides()" class="w-full md:w-auto text-xs sm:text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-agrigreen-600">
+                        <option value="ALL">Semua Kategori</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Pesticide Cards Grid -->
+            <div id="pesticideGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Cards inject dynamically -->
+            </div>
+
+            <!-- Empty State for Inventory -->
+            <div id="emptyInventoryState" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 p-6">
+                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3 class="font-bold text-slate-700 text-base mb-1">Daftar Pestisida Kosong</h3>
+                <p class="text-slate-500 text-xs max-w-md mx-auto mb-5">Belum ada data pestisida yang tersimpan atau tidak ada hasil yang cocok dengan kata kunci pencarian Anda.</p>
+                <div class="flex justify-center gap-3">
+                    <button onclick="openModalPesticide()" class="bg-agrigreen-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-agrigreen-800 transition shadow">
+                        + Tambah Pestisida Baru
+                    </button>
+                    <button onclick="loadSampleData()" class="bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-200 transition">
+                        Muat Data Contoh
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: DAFTAR JENIS TANAMAN -->
+        <section id="tab-crops" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-seedling text-agrigreen-600"></i> Daftar Jenis Tanaman & Pestisida Rekomendasi
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Melihat pengelompokan produk pestisida berdasarkan komoditas/jenis tanaman pertanian.</p>
+                </div>
+
+                <!-- Search Crop Input -->
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchCropInput" oninput="renderCropsView()" placeholder="Cari nama tanaman..." class="w-full pl-10 pr-3 py-2 text-xs sm:text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-agrigreen-600">
+                </div>
+            </div>
+
+            <!-- Crop Cards Grid -->
+            <div id="cropsGrid" class="space-y-6">
+                <!-- Injected dynamically via JavaScript -->
+            </div>
+
+            <!-- Empty State for Crops -->
+            <div id="emptyCropsState" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 p-6">
+                <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-wheat-awns"></i>
+                </div>
+                <h3 class="font-bold text-slate-700 text-base mb-1">Tidak Ada Jenis Tanaman</h3>
+                <p class="text-slate-500 text-xs max-w-md mx-auto mb-5">Belum ada tanaman yang terdaftar di pestisida atau tidak ada yang cocok dengan pencarian Anda.</p>
+                <button onclick="openModalPesticide()" class="bg-agrigreen-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-agrigreen-800 transition shadow">
+                    + Tambah Pestisida Dengan Tanaman
+                </button>
+            </div>
+        </section>
+
+        <!-- TAB 3: KALKULATOR DOSIS TANGKI -->
+        <section id="tab-calculator" class="hidden max-w-3xl mx-auto space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b pb-4">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-agrigreen-600"></i> Kalkulator Dosis Tangki Semprot
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Hitung takaran pencampuran pestisida secara akurat agar aplikasi efisien dan hemat.</p>
+                </div>
+
+                <form id="calcForm" onsubmit="calculateDosage(event)" class="space-y-4 text-xs sm:text-sm">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Pilih Produk Pestisida (Opsional)</label>
+                        <select id="calcSelectPesticide" onchange="autoFillCalcFromPesticide()" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none bg-white">
+                            <option value="">-- Isikan Dosis Manual atau Pilih Pestisida --</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Kapasitas Tangki Semprot (Liter) <span class="text-red-500">*</span></label>
+                            <input type="number" id="calcTankSize" value="16" step="0.5" min="1" required placeholder="Misal: 16" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Dosis Anjuran Pakai <span class="text-red-500">*</span></label>
+                            <div class="flex gap-2">
+                                <input type="number" id="calcDoseVal" value="2" step="0.1" min="0.01" required placeholder="Misal: 2" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                                <select id="calcDoseUnit" class="p-2.5 border border-slate-300 rounded-xl bg-slate-50 text-slate-700 font-medium">
+                                    <option value="ml">ml / Liter</option>
+                                    <option value="gr">gram / Liter</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Rencana Jumlah Tangki Semprot <span class="text-red-500">*</span></label>
+                            <input type="number" id="calcTankCount" value="1" min="1" required class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-agrigreen-700 hover:bg-agrigreen-800 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-calculator"></i> Hitung Takaran
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Calculation Result Display -->
+                <div id="calcResultBox" class="hidden bg-emerald-50/70 border border-emerald-200 p-5 rounded-2xl space-y-4">
+                    <h3 class="font-bold text-agrigreen-900 text-sm sm:text-base flex items-center gap-2 border-b border-emerald-200 pb-2">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i> Hasil Perhitungan Takaran
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+                        <div class="bg-white p-3.5 rounded-xl border border-emerald-100 shadow-sm">
+                            <span class="text-slate-500 text-[11px] block font-medium">Takaran Per 1 Tangki:</span>
+                            <span id="resPerTank" class="text-lg font-bold text-agrigreen-700">0 ml/gr</span>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Campurkan ke dalam tangki penuh.</p>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-emerald-100 shadow-sm">
+                            <span class="text-slate-500 text-[11px] block font-medium">Total Kebutuhan Pestisida:</span>
+                            <span id="resTotalPesticide" class="text-lg font-bold text-agrigreen-700">0 ml/gr</span>
+                            <p id="resSubtext" class="text-[10px] text-slate-400 mt-0.5">Untuk 1 tangki semprot.</p>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-emerald-100 shadow-sm">
+                            <span class="text-slate-500 text-[11px] block font-medium">Total Kebutuhan Air:</span>
+                            <span id="resTotalWater" class="text-lg font-bold text-blue-600">0 Liter</span>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Volume air larutan.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: PENGATURAN & EKSPOR DATA -->
+        <section id="tab-settings" class="hidden max-w-3xl mx-auto space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-gear text-agrigreen-600"></i> Pengaturan & Cadangan Data
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Kelola data cadangan, ekspor laporan, atau muat ulang data contoh.</p>
+                </div>
+
+                <div class="space-y-4 text-xs sm:text-sm divide-y divide-slate-100">
+                    <!-- CSV Export -->
+                    <div class="pt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h4 class="font-bold text-slate-800">Ekspor Katalog Ke CSV</h4>
+                            <p class="text-slate-500 text-xs">Unduh seluruh daftar pestisida dalam format spreadsheet CSV.</p>
+                        </div>
+                        <button onclick="exportCSV()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-medium transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-file-csv"></i> Unduh CSV
+                        </button>
+                    </div>
+
+                    <!-- JSON Backup & Restore -->
+                    <div class="pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h4 class="font-bold text-slate-800">Cadangan / Restore JSON</h4>
+                            <p class="text-slate-500 text-xs">Simpan seluruh data ke berkas JSON atau pulihkan data dari berkas JSON.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="exportJSONBackup()" class="px-3.5 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-xl font-medium transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-download"></i> Unduh JSON
+                            </button>
+                            <label class="px-3.5 py-2 bg-agrigreen-700 hover:bg-agrigreen-800 text-white rounded-xl font-medium transition cursor-pointer flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-upload"></i> Impor JSON
+                                <input type="file" id="jsonFileInput" accept=".json" onchange="importJSONBackup(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Load Sample Data -->
+                    <div class="pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h4 class="font-bold text-slate-800">Isi Data Contoh (Sample Data)</h4>
+                            <p class="text-slate-500 text-xs">Isi aplikasi dengan beberapa data pestisida & tanaman contoh untuk pengujian.</p>
+                        </div>
+                        <button onclick="loadSampleData()" class="px-4 py-2 border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl font-medium transition flex items-center gap-2">
+                            <i class="fa-solid fa-database"></i> Muat Data Contoh
+                        </button>
+                    </div>
+
+                    <!-- Reset Data -->
+                    <div class="pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h4 class="font-bold text-red-600">Reset Semua Data</h4>
+                            <p class="text-slate-500 text-xs">Hapus seluruh data pestisida dari memori perangkat (LocalStorage).</p>
+                        </div>
+                        <button onclick="resetAllData()" class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-xl font-medium transition flex items-center gap-2">
+                            <i class="fa-solid fa-trash-arrow-up"></i> Hapus Semua Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 py-6 text-xs text-center border-t border-slate-700 mt-12 mb-14 md:mb-0">
+        <div class="max-w-7xl mx-auto px-4 space-y-1">
+            <p><i class="fa-solid fa-leaf text-agrigreen-500 mr-1"></i> <strong>PestiLog</strong> &copy; 2026 - Aplikasi Pencatat & Management Pestisida Pertanian</p>
+            <p class="text-slate-500 text-[11px]">Selalu ikuti petunjuk keamanan dan gunakan APD lengkap saat menangani bahan kimia pertanian.</p>
+        </div>
+    </footer>
+
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- MODAL 1: FORM TAMBAH / EDIT PESTISIDA MANUAL -->
+    <div id="modalPesticide" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-xl rounded-2xl shadow-xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
+            <!-- Modal Header -->
+            <div class="bg-slate-800 px-6 py-4 text-white flex justify-between items-center">
+                <h3 id="modalPesticideTitle" class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-file-circle-plus text-emerald-400"></i> Tambah Pestisida Baru
+                </h3>
+                <button onclick="closeModal('modalPesticide')" class="text-slate-400 hover:text-white transition text-lg p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="pesticideForm" onsubmit="savePesticide(event)" class="p-6 space-y-4 overflow-y-auto text-xs sm:text-sm">
+                <input type="hidden" id="pesticideId">
+
+                <!-- Field 1: Nama Merk Dagang -->
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">1. Nama Merk Dagang <span class="text-red-500">*</span></label>
+                    <input type="text" id="pestName" required placeholder="Contoh: Dithane M-45 80 WP" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                </div>
+
+                <!-- Field 2: Jenis Tanaman (Right under Nama Merk) -->
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">2. Jenis Tanaman (Isi Manual) <span class="text-red-500">*</span></label>
+                    <input type="text" id="pestCrop" autocomplete="off" required placeholder="Contoh: Cabai, Tomat, Padi, Bawang Merah" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                </div>
+
+                <!-- Field 3: Bahan Aktif & Konsentrasi -->
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">3. Bahan Aktif & Konsentrasi <span class="text-red-500">*</span></label>
+                    <input type="text" id="pestActive" required placeholder="Contoh: Mankozeb 80%" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                </div>
+
+                <!-- Field 4: Kategori Jenis -->
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">4. Kategori Jenis (Isi Manual) <span class="text-red-500">*</span></label>
+                    <input type="text" id="pestCategory" autocomplete="off" required placeholder="Contoh: Fungisida, Insektisida, Herbisida" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                </div>
+
+                <!-- Field 5 & 6: Formulasi & Target Hama -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">5. Bentuk Formulasi</label>
+                        <input type="text" id="pestFormulation" placeholder="Contoh: Tepung (WP), Cair (EC), Granul" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">6. Target Hama / Penyakit</label>
+                        <input type="text" id="pestTarget" placeholder="Contoh: Busuk daun, Ulat grayak, Thrips" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Field 7: Dosis Anjuran Pakai -->
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">7. Dosis Anjuran Pakai</label>
+                    <input type="text" id="pestDosage" placeholder="Contoh: 1.5 - 2 gr/liter air" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none">
+                </div>
+
+                <!-- Field 8: Catatan Khusus -->
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">8. Catatan Khusus / Keterangan Tambahan</label>
+                    <textarea id="pestNotes" rows="2.5" placeholder="Catatan instruksi khusus, produsen, atau instruksi keselamatan..." class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-agrigreen-600 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end gap-3 pt-3 border-t">
+                    <button type="button" onclick="closeModal('modalPesticide')" class="px-4 py-2.5 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-100 font-medium transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-agrigreen-700 hover:bg-agrigreen-800 text-white rounded-xl font-semibold transition shadow">
+                        Simpan Pestisida
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MODAL 2: DETAIL VIEW PESTISIDA -->
+    <div id="modalDetail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden my-8">
+            <div class="bg-slate-800 px-6 py-4 text-white flex justify-between items-center">
+                <h3 id="detailTitle" class="font-bold text-base">Detail Pestisida</h3>
+                <button onclick="closeModal('modalDetail')" class="text-slate-400 hover:text-white transition text-lg p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="detailContent" class="p-6 space-y-4 text-xs sm:text-sm">
+                <!-- Content injected dynamically via JS -->
+            </div>
+
+            <div class="bg-slate-50 px-6 py-3.5 border-t flex justify-between items-center">
+                <button id="btnDeletePesticide" class="text-red-600 hover:text-red-700 font-semibold text-xs flex items-center gap-1.5 p-1">
+                    <i class="fa-solid fa-trash-can"></i> Hapus
+                </button>
+                <div class="flex gap-2">
+                    <button id="btnEditPesticide" class="px-3.5 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-xl font-semibold text-xs transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT APP CORE -->
+    <script>
+        // Sample Initial Data
+        const defaultPesticides = [
+            {
+                id: 'pest-1',
+                name: 'Dithane M-45 80 WP',
+                cropType: 'Cabai, Tomat, Kentang',
+                activeIngredient: 'Mankozeb 80%',
+                category: 'Fungisida',
+                formulation: 'Tepung (WP)',
+                targetPest: 'Busuk daun Phytophthora, Bintik Hitam',
+                dosage: '1.5 - 2 gr/Liter air',
+                notes: 'Cocok untuk penyemprotan pencegahan awal musim hujan.'
+            },
+            {
+                id: 'pest-2',
+                name: 'Curacron 500 EC',
+                cropType: 'Cabai, Bawang Merah, Padi',
+                activeIngredient: 'Profilofos 500 g/l',
+                category: 'Insektisida',
+                formulation: 'Cair (EC)',
+                targetPest: 'Ulat grayak, Thrips, Kutu Daun',
+                dosage: '1 - 2 ml/Liter air',
+                notes: 'Aroma cukup kuat, gunakan APD dan masker keselamatan.'
+            },
+            {
+                id: 'pest-3',
+                name: 'Roundup 486 SL',
+                cropType: 'Lahan Jagung, Kelapa Sawit',
+                activeIngredient: 'Glifosat Isopropilamina 486 g/l',
+                category: 'Herbisida',
+                formulation: 'Cair (SL)',
+                targetPest: 'Gulma daun lebar & rumput liar',
+                dosage: '5 - 10 ml/Liter air',
+                notes: 'Herbisida sistemik purna tumbuh.'
+            }
+        ];
+
+        // Application State Variables
+        let pesticides = [];
+
+        // Application Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+
+        function initApp() {
+            loadFromLocalStorage();
+            updateCategoryFilterDropdown();
+            renderPesticideGrid();
+            renderCropsView();
+            populateCalculatorOptions();
+        }
+
+        // Local Storage Management
+        function loadFromLocalStorage() {
+            const storedPests = localStorage.getItem('pestilog_pesticides_v3');
+
+            if (storedPests) {
+                try {
+                    pesticides = JSON.parse(storedPests);
+                } catch (e) {
+                    pesticides = [...defaultPesticides];
+                }
+            } else {
+                pesticides = [...defaultPesticides];
+                saveToLocalStorage();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('pestilog_pesticides_v3', JSON.stringify(pesticides));
+        }
+
+        // Tab Navigation Switcher
+        function switchTab(tabName) {
+            const tabs = ['inventory', 'crops', 'calculator', 'settings'];
+            
+            tabs.forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                const navBtn = document.getElementById(`nav-${t}`);
+                const mobBtn = document.getElementById(`mob-${t}`);
+
+                if (t === tabName) {
+                    if (sec) sec.classList.remove('hidden');
+                    
+                    if (navBtn) {
+                        navBtn.className = 'px-3.5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 bg-agrigreen-900 text-white shadow-sm';
+                    }
+                    if (mobBtn) {
+                        mobBtn.className = 'flex flex-col items-center text-white bg-agrigreen-800 py-1 px-2 rounded-lg font-medium';
+                    }
+                } else {
+                    if (sec) sec.classList.add('hidden');
+                    
+                    if (navBtn) {
+                        navBtn.className = 'px-3.5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 text-agrigreen-100 hover:bg-agrigreen-700 hover:text-white';
+                    }
+                    if (mobBtn) {
+                        mobBtn.className = 'flex flex-col items-center text-agrigreen-200 py-1 px-2 rounded-lg font-medium';
+                    }
+                }
+            });
+
+            if (tabName === 'crops') {
+                renderCropsView();
+            }
+        }
+
+        // Dashboard Stats Counter
+        function renderDashboardStats() {
+            const uniqueCategories = new Set(
+                pesticides.map(p => p.category ? p.category.trim() : '').filter(Boolean)
+            );
+
+            const cropMap = getExtractedCropsMap();
+
+            document.getElementById('statTotalItems').textContent = pesticides.length;
+            document.getElementById('statTotalCategories').textContent = uniqueCategories.size;
+            document.getElementById('statTotalCrops').textContent = Object.keys(cropMap).length;
+        }
+
+        // Utility to extract unique crops from all pesticides
+        function getExtractedCropsMap() {
+            const cropMap = {}; // { 'Cabai': [pest1, pest2], 'Tomat': [pest1] }
+
+            pesticides.forEach(p => {
+                if (!p.cropType) return;
+                // Split comma or slash separated crop names
+                const cropsList = p.cropType.split(/[,/]/).map(c => c.trim()).filter(Boolean);
+                
+                cropsList.forEach(rawCrop => {
+                    // Capitalize nicely
+                    const cropName = rawCrop.charAt(0).toUpperCase() + rawCrop.slice(1);
+                    if (!cropMap[cropName]) {
+                        cropMap[cropName] = [];
+                    }
+                    // Prevent duplicate entries of same pesticide
+                    if (!cropMap[cropName].some(item => item.id === p.id)) {
+                        cropMap[cropName].push(p);
+                    }
+                });
+            });
+
+            return cropMap;
+        }
+
+        // Render Crops View Tab
+        function renderCropsView() {
+            const container = document.getElementById('cropsGrid');
+            const emptyState = document.getElementById('emptyCropsState');
+            if (!container) return;
+
+            const searchVal = (document.getElementById('searchCropInput')?.value || '').toLowerCase().trim();
+            const cropMap = getExtractedCropsMap();
+            let cropNames = Object.keys(cropMap).sort();
+
+            if (searchVal) {
+                cropNames = cropNames.filter(name => name.toLowerCase().includes(searchVal));
+            }
+
+            container.innerHTML = '';
+
+            if (cropNames.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            cropNames.forEach(cropName => {
+                const pestList = cropMap[cropName];
+
+                let pestRowsHTML = '';
+                pestList.forEach(p => {
+                    pestRowsHTML += `
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 hover:bg-white hover:border-emerald-300 transition flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-slate-800 text-sm">${escapeHTML(p.name)}</span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 uppercase">${escapeHTML(p.category)}</span>
+                                </div>
+                                <p class="text-xs text-slate-600">
+                                    <i class="fa-solid fa-vial text-emerald-600 text-[11px] mr-1"></i><strong>Bahan Aktif:</strong> ${escapeHTML(p.activeIngredient)}
+                                </p>
+                                <div class="text-[11px] text-slate-500 flex flex-wrap gap-x-4 gap-y-0.5">
+                                    <span><strong>Dosis:</strong> ${escapeHTML(p.dosage || '-')}</span>
+                                    <span><strong>Target:</strong> ${escapeHTML(p.targetPest || '-')}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                                <button onclick="openDetailModal('${p.id}')" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-circle-info"></i> Detail
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-slate-800 px-5 py-3.5 text-white flex justify-between items-center">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-xl">🌱</span>
+                                <div>
+                                    <h3 class="font-bold text-base text-white leading-tight">${escapeHTML(cropName)}</h3>
+                                    <p class="text-[11px] text-slate-300">${pestList.length} Produk Pestisida Rekomendasi</p>
+                                </div>
+                            </div>
+                            <button onclick="openModalForSpecificCrop('${escapeHTML(cropName)}')" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow">
+                                <i class="fa-solid fa-plus text-[10px]"></i> Tambah Obat
+                            </button>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            ${pestRowsHTML}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openModalForSpecificCrop(cropName) {
+            openModalPesticide();
+            document.getElementById('pestCrop').value = cropName;
+        }
+
+        // Update Dynamic Filter Dropdown
+        function updateCategoryFilterDropdown() {
+            const filterSelect = document.getElementById('filterCategory');
+            if (!filterSelect) return;
+
+            const currentVal = filterSelect.value;
+            const categories = new Set();
+            pesticides.forEach(p => {
+                if (p.category && p.category.trim()) {
+                    categories.add(p.category.trim());
+                }
+            });
+
+            let html = '<option value="ALL">Semua Kategori</option>';
+            categories.forEach(cat => {
+                html += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
+            });
+
+            filterSelect.innerHTML = html;
+            if (Array.from(categories).includes(currentVal)) {
+                filterSelect.value = currentVal;
+            } else {
+                filterSelect.value = 'ALL';
+            }
+        }
+
+        // Filter and Render Pesticide Grid
+        function filterPesticides() {
+            renderPesticideGrid();
+        }
+
+        function renderPesticideGrid() {
+            const searchVal = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+            const catVal = document.getElementById('filterCategory').value;
+
+            const grid = document.getElementById('pesticideGrid');
+            const emptyState = document.getElementById('emptyInventoryState');
+            grid.innerHTML = '';
+
+            const filtered = pesticides.filter(p => {
+                const matchSearch = (p.name || '').toLowerCase().includes(searchVal) ||
+                                    (p.cropType || '').toLowerCase().includes(searchVal) ||
+                                    (p.activeIngredient || '').toLowerCase().includes(searchVal) ||
+                                    (p.targetPest || '').toLowerCase().includes(searchVal) ||
+                                    (p.category || '').toLowerCase().includes(searchVal);
+
+                const matchCategory = (catVal === 'ALL') || (p.category === catVal);
+
+                return matchSearch && matchCategory;
+            });
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                grid.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+
+                filtered.forEach(p => {
+                    grid.innerHTML += createPesticideCardHTML(p);
+                });
+            }
+        }
+
+        function createPesticideCardHTML(p) {
+            return `
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between space-y-3.5">
+                    <div class="space-y-1.5">
+                        <!-- Category Badge & Name -->
+                        <div class="flex justify-between items-start gap-2 mb-2">
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-100 inline-block">
+                                ${escapeHTML(p.category || 'Lainnya')}
+                            </span>
+                            <span class="text-xs text-slate-400 font-mono">${escapeHTML(p.formulation || '')}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-base leading-snug px-0.5">${escapeHTML(p.name)}</h3>
+                        <p class="text-xs text-emerald-700 font-medium px-0.5 flex items-center gap-1.5"><i class="fa-solid fa-vial text-[10px]"></i>${escapeHTML(p.activeIngredient)}</p>
+                    </div>
+
+                    <!-- Details Box -->
+                    <div class="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <p class="truncate"><strong>Tanaman:</strong> ${escapeHTML(p.cropType || '-')}</p>
+                        <p class="truncate"><strong>Dosis:</strong> ${escapeHTML(p.dosage || '-')}</p>
+                        <p class="truncate"><strong>Sasaran:</strong> ${escapeHTML(p.targetPest || '-')}</p>
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div class="pt-2 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-xs">
+                        <button onclick="openDetailModal('${p.id}')" class="py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition flex items-center justify-center gap-1.5" title="Lihat Detail">
+                            <i class="fa-solid fa-circle-info text-xs"></i> Detail
+                        </button>
+                        <button onclick="editPesticide('${p.id}')" class="py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition flex items-center justify-center gap-1.5" title="Edit">
+                            <i class="fa-solid fa-pen-to-square text-xs"></i> Edit
+                        </button>
+                        <button onclick="deletePesticide('${p.id}')" class="py-2 px-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium transition flex items-center justify-center gap-1.5" title="Hapus">
+                            <i class="fa-solid fa-trash-can text-xs"></i> Hapus
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal Open / Close Logic
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function openModalPesticide() {
+            document.getElementById('modalPesticideTitle').innerHTML = `<i class="fa-solid fa-file-circle-plus text-emerald-400"></i> Tambah Pestisida Baru`;
+            document.getElementById('pesticideForm').reset();
+            document.getElementById('pesticideId').value = '';
+            openModal('modalPesticide');
+        }
+
+        // Save Pesticide (Create or Update)
+        function savePesticide(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('pesticideId').value;
+            const name = document.getElementById('pestName').value.trim();
+            const cropType = document.getElementById('pestCrop').value.trim();
+            const activeIngredient = document.getElementById('pestActive').value.trim();
+            const category = document.getElementById('pestCategory').value.trim();
+            const formulation = document.getElementById('pestFormulation').value.trim();
+            const targetPest = document.getElementById('pestTarget').value.trim();
+            const dosage = document.getElementById('pestDosage').value.trim();
+            const notes = document.getElementById('pestNotes').value.trim();
+
+            if (!name || !cropType || !activeIngredient || !category) {
+                showToast('Mohon lengkapi seluruh bidang yang wajib diisi (*)!', 'error');
+                return;
+            }
+
+            if (id) {
+                // Edit existing
+                const index = pesticides.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    pesticides[index] = {
+                        ...pesticides[index],
+                        name, cropType, activeIngredient, category, formulation, targetPest, dosage, notes
+                    };
+                    showToast(`Pestisida "${name}" berhasil diperbarui!`, 'success');
+                }
+            } else {
+                // Add new
+                const newPest = {
+                    id: 'pest-' + Date.now(),
+                    name, cropType, activeIngredient, category, formulation, targetPest, dosage, notes
+                };
+                pesticides.push(newPest);
+                showToast(`Pestisida "${name}" berhasil ditambahkan!`, 'success');
+            }
+
+            saveToLocalStorage();
+            closeModal('modalPesticide');
+            updateCategoryFilterDropdown();
+            renderPesticideGrid();
+            renderCropsView();
+            populateCalculatorOptions();
+        }
+
+        // Edit Pesticide Trigger
+        function editPesticide(id) {
+            const p = pesticides.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('modalPesticideTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Data Pestisida`;
+            document.getElementById('pesticideId').value = p.id;
+            document.getElementById('pestName').value = p.name;
+            document.getElementById('pestCrop').value = p.cropType || '';
+            document.getElementById('pestActive').value = p.activeIngredient || '';
+            document.getElementById('pestCategory').value = p.category || '';
+            document.getElementById('pestFormulation').value = p.formulation || '';
+            document.getElementById('pestTarget').value = p.targetPest || '';
+            document.getElementById('pestDosage').value = p.dosage || '';
+            document.getElementById('pestNotes').value = p.notes || '';
+
+            closeModal('modalDetail');
+            openModal('modalPesticide');
+        }
+
+        // Delete Pesticide Trigger
+        function deletePesticide(id) {
+            const p = pesticides.find(item => item.id === id);
+            if (!p) return;
+
+            if (confirm(`Apakah Anda yakin ingin menghapus "${p.name}" dari daftar?`)) {
+                pesticides = pesticides.filter(item => item.id !== id);
+                saveToLocalStorage();
+                closeModal('modalDetail');
+                updateCategoryFilterDropdown();
+                renderPesticideGrid();
+                renderCropsView();
+                populateCalculatorOptions();
+                showToast(`Data "${p.name}" telah dihapus.`, 'info');
+            }
+        }
+
+        // Detail Modal View
+        function openDetailModal(id) {
+            const p = pesticides.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('detailTitle').textContent = p.name;
+            const container = document.getElementById('detailContent');
+
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+                        <div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-100 uppercase">${escapeHTML(p.category)}</span>
+                            <h4 class="font-bold text-lg text-slate-800 mt-1">${escapeHTML(p.name)}</h4>
+                            <p class="text-xs text-slate-500 italic">Bahan Aktif: ${escapeHTML(p.activeIngredient)}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-slate-50 p-2.5 rounded-xl">
+                            <span class="text-slate-400 text-[10px] block uppercase font-bold">Formulasi</span>
+                            <span class="font-medium text-slate-700">${escapeHTML(p.formulation || '-')}</span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl">
+                            <span class="text-slate-400 text-[10px] block uppercase font-bold">Dosis Anjuran</span>
+                            <span class="font-medium text-slate-700">${escapeHTML(p.dosage || '-')}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-xs pt-1">
+                        <div>
+                            <span class="font-semibold text-slate-700 block">Jenis Tanaman:</span>
+                            <p class="text-slate-600">${escapeHTML(p.cropType || '-')}</p>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-slate-700 block">Target Hama / Penyakit:</span>
+                            <p class="text-slate-600">${escapeHTML(p.targetPest || '-')}</p>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-slate-700 block">Catatan Khusus:</span>
+                            <p class="text-slate-600 italic">${escapeHTML(p.notes || 'Tidak ada catatan.')}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('btnEditPesticide').onclick = () => editPesticide(p.id);
+            document.getElementById('btnDeletePesticide').onclick = () => deletePesticide(p.id);
+
+            openModal('modalDetail');
+        }
+
+        // Tank Dosage Calculator Logic
+        function populateCalculatorOptions() {
+            const select = document.getElementById('calcSelectPesticide');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">-- Isikan Dosis Manual atau Pilih Pestisida --</option>';
+            pesticides.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${escapeHTML(p.name)} (Dosis: ${escapeHTML(p.dosage || 'N/A')})</option>`;
+            });
+        }
+
+        function autoFillCalcFromPesticide() {
+            const id = document.getElementById('calcSelectPesticide').value;
+            if (!id) return;
+
+            const p = pesticides.find(item => item.id === id);
+            if (p && p.dosage) {
+                const match = p.dosage.match(/([\d\.]+)/);
+                if (match && match[1]) {
+                    document.getElementById('calcDoseVal').value = match[1];
+                }
+                if (p.dosage.toLowerCase().includes('gr') || p.dosage.toLowerCase().includes('gram')) {
+                    document.getElementById('calcDoseUnit').value = 'gr';
+                } else {
+                    document.getElementById('calcDoseUnit').value = 'ml';
+                }
+            }
+        }
+
+        function calculateDosage(e) {
+            e.preventDefault();
+
+            const tankSize = parseFloat(document.getElementById('calcTankSize').value) || 0;
+            const doseVal = parseFloat(document.getElementById('calcDoseVal').value) || 0;
+            const doseUnit = document.getElementById('calcDoseUnit').value;
+            const tankCount = parseInt(document.getElementById('calcTankCount').value) || 1;
+
+            if (tankSize <= 0 || doseVal <= 0 || tankCount <= 0) {
+                showToast('Isi angka kapasitas dan dosis dengan benar!', 'error');
+                return;
+            }
+
+            const perTank = tankSize * doseVal;
+            const totalPesticide = perTank * tankCount;
+            const totalWater = tankSize * tankCount;
+
+            const unitLabel = doseUnit === 'ml' ? 'ml' : 'gram';
+
+            document.getElementById('resPerTank').textContent = `${perTank.toLocaleString('id-ID')} ${unitLabel}`;
+            document.getElementById('resTotalPesticide').textContent = `${totalPesticide.toLocaleString('id-ID')} ${unitLabel}`;
+            document.getElementById('resTotalWater').textContent = `${totalWater.toLocaleString('id-ID')} Liter`;
+            document.getElementById('resSubtext').textContent = `Total obat untuk ${tankCount} tangki semprot.`;
+
+            document.getElementById('calcResultBox').classList.remove('hidden');
+        }
+
+        // CSV Export Feature
+        function exportCSV() {
+            if (pesticides.length === 0) {
+                showToast('Tidak ada data pestisida untuk diekspor!', 'error');
+                return;
+            }
+
+            let csv = "\uFEFF"; // UTF-8 BOM for Excel compatibility
+            csv += "ID,Nama Merk Dagang,Jenis Tanaman,Bahan Aktif,Kategori,Formulasi,Target Hama,Dosis Anjuran,Catatan\n";
+
+            pesticides.forEach(p => {
+                const row = [
+                    p.id,
+                    `"${(p.name || '').replace(/"/g, '""')}"`,
+                    `"${(p.cropType || '').replace(/"/g, '""')}"`,
+                    `"${(p.activeIngredient || '').replace(/"/g, '""')}"`,
+                    `"${(p.category || '').replace(/"/g, '""')}"`,
+                    `"${(p.formulation || '').replace(/"/g, '""')}"`,
+                    `"${(p.targetPest || '').replace(/"/g, '""')}"`,
+                    `"${(p.dosage || '').replace(/"/g, '""')}"`,
+                    `"${(p.notes || '').replace(/"/g, '""')}"`
+                ];
+                csv += row.join(",") + "\n";
+            });
+
+            downloadFile(csv, `PestiLog_Katalog_${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
+            showToast('Berkas CSV berhasil diunduh!', 'success');
+        }
+
+        // JSON Backup & Import
+        function exportJSONBackup() {
+            const data = {
+                version: "3.0",
+                exportDate: new Date().toISOString(),
+                pesticides: pesticides
+            };
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            downloadFile(jsonStr, `PestiLog_Backup_${new Date().toISOString().slice(0,10)}.json`, 'application/json');
+            showToast('Cadangan JSON berhasil diunduh!', 'success');
+        }
+
+        function importJSONBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data && Array.isArray(data.pesticides)) {
+                        pesticides = data.pesticides;
+                        saveToLocalStorage();
+                        initApp();
+                        showToast('Data berhasil dipulihkan dari JSON!', 'success');
+                    } else {
+                        showToast('Format berkas JSON tidak sesuai!', 'error');
+                    }
+                } catch (err) {
+                    showToast('Gagal membaca file JSON!', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // Load Sample Data
+        function loadSampleData() {
+            pesticides = [...defaultPesticides];
+            saveToLocalStorage();
+            initApp();
+            showToast('Data contoh berhasil dimuat!', 'success');
+        }
+
+        // Reset All Data
+        function resetAllData() {
+            if (confirm('APAKAH ANDA YAKIN? Seluruh data pestisida akan dihapus secara permanen.')) {
+                localStorage.removeItem('pestilog_pesticides_v3');
+                pesticides = [];
+                saveToLocalStorage();
+                initApp();
+                showToast('Seluruh data telah dihapus.', 'info');
+            }
+        }
+
+        // Helper Functions
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastContent = document.getElementById('toastContent');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            if (!toast || !toastContent) return;
+
+            toastMessage.textContent = message;
+
+            if (type === 'success') {
+                toastContent.className = "flex items-center justify-between p-4 rounded-xl shadow-lg text-white font-medium text-sm bg-emerald-600";
+                toastIcon.className = "fa-solid fa-circle-check text-lg";
+            } else if (type === 'error') {
+                toastContent.className = "flex items-center justify-between p-4 rounded-xl shadow-lg text-white font-medium text-sm bg-red-600";
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-lg";
+            } else {
+                toastContent.className = "flex items-center justify-between p-4 rounded-xl shadow-lg text-white font-medium text-sm bg-slate-800";
+                toastIcon.className = "fa-solid fa-circle-info text-lg";
+            }
+
+            toast.classList.remove('translate-y-[-150%]', 'opacity-0', 'pointer-events-none');
+
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                hideToast();
+            }, 3500);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.classList.add('translate-y-[-150%]', 'opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
