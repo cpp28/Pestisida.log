@@ -31,6 +31,21 @@
 "launch_handler": {
 "client_mode": "focus-existing"
 },
+"file_handlers": [
+{
+"action": "./index.html",
+"accept": {
+"application/json": [".json"],
+"text/csv": [".csv"]
+}
+}
+],
+"protocol_handlers": [
+{
+"protocol": "web+pestilog",
+"url": "./index.html?data=%s"
+}
+],
 "shortcuts": [
 {
 "name": "Tambah Pestisida",
