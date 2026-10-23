@@ -12,6 +12,9 @@
 "standalone",
 "minimal-ui"
 ],
+"note_taking": {
+"new_note_url": "./index.html"
+},
 "background_color": "#f8fafc",
 "theme_color": "#14532d",
 "orientation": "portrait-primary",
