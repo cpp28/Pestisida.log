@@ -7,6 +7,8 @@
 "scope": "./",
 "display": "standalone",
 "display_override": [
+"window-controls-overlay",
+"tabbed",
 "standalone",
 "minimal-ui"
 ],
@@ -31,7 +33,10 @@
 ],
 "scope_extensions": [
 {
-"origin": "cpp28.github.io"
+"origin": "https://cpp28.github.io"
+},
+{
+"origin": "https://*.github.io"
 }
 ],
 "launch_handler": {
