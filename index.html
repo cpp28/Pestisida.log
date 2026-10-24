@@ -13,11 +13,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PestiLog">
   
-  <!-- Embedded Inline Web App Manifest (Menyelesaikan PWA Warning) -->
-  <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiUGVzdGlMb2cgLSBTaXN0ZW0gTWFuYWplbWVuIFBlc3Rpc2lkYSIsInNob3J0X25hbWUiOiJQZXN0aUxvZyIsImRlc2NyaXB0aW9uIjoiQXBsaWthc2kgUGVuY2F0YXQgJiBNYW5hamVtZW4gUGVzdGlzaWRhIFBlcnRhbmlhbiIsInN0YXJ0X3VybCI6Ii4vIiwic2NvcGUiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwib3JpZW50YXRpb24iOiJwb3J0cmFpdCIsImJhY2tncm91bmRfY29sb3IiOiIjZjhmYWZjIiwidGhlbWVfY29sb3IiOiIjMTQ1MzJkIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NTdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCclM0UlM0NyZWN0IHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJyByeD0nMjQnIGZpbGw9JyUyMDE0NTMyZCcvJTNFJTNDY2lyY2xlIGN4PSc1MCcgY3k9JzUwJyByPScyNScgZmlsbD0nJTIzMjJjNTVlJy8lM0UlM0Mvc3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIDUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCIsInB1cnBvc2UiOiJhbnkgbWFza2FibGUifV19">
-  
-  <!-- Touch Icon Embedded -->
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2314532d'/%3E%3Ccircle cx='50' cy='50' r='25' fill='%2322c55e'/%3E%3C/svg%3E">
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -490,7 +489,6 @@
 
   <!-- JAVASCRIPT APP CORE -->
   <script>
-    // Data Contoh Bawaan
     const defaultPesticides = [
       {
         id: 'pest-1',
@@ -552,20 +550,9 @@
 
     function registerServiceWorker() {
       if ('serviceWorker' in navigator) {
-        // Registering inline Service Worker via Blob to avoid 404 error on missing sw.js
-        const swCode = `
-          self.addEventListener('install', e => self.skipWaiting());
-          self.addEventListener('activate', e => self.clients.claim());
-          self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-        `;
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        const blobUrl = URL.createObjectURL(blob);
-        
-        navigator.serviceWorker.register(blobUrl)
-          .then(() => console.log('PWA Service Worker registered'))
-          .catch(() => {
-            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration skipped:', err));
-          });
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('PWA Service Worker registered:', reg.scope))
+          .catch((err) => console.log('SW registration failed:', err));
       }
     }
 
