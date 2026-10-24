@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pestilog-v3';
-const ASSETS = [
+const CACHE_NAME = 'pestilog-cache-v1';
+const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
@@ -8,93 +8,69 @@ const ASSETS = [
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
 ];
 
-// Install Event - Pre-cache core assets
+// Install Event: Cache essential assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+      console.log('[Service Worker] Pre-caching static assets');
+      return cache.addAll(ASSETS_TO_CACHE);
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Activate Event - Clean up old caches
+// Activate Event: Cleanup old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log('[Service Worker] Deleting old cache:', cache);
+            return caches.delete(cache);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch Event - Standard Cache-First Pattern for Offline Detection
+// Fetch Event: Cache first, network fallback with dynamic caching
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  // Skip non-GET requests or browser extension requests
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
+        // Return cached resource and update cache in background
+        fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
+          }
+        }).catch(() => {/* Ignore network errors for background refresh */});
+
         return cachedResponse;
       }
+
       return fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
         }
+
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+
         return networkResponse;
       }).catch(() => {
+        // Fallback response for offline HTML navigation
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }
       });
     })
-  );
-});
-
-// Periodic Background Sync Event Handler
-self.addEventListener('periodicsync', (event) => {
-  if (event.tag === 'update-cache') {
-    event.waitUntil(
-      caches.open(CACHE_NAME).then((cache) => {
-        return cache.addAll(ASSETS);
-      })
-    );
-  }
-});
-
-// Background Sync Event Handler
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-pesticide-data') {
-    event.waitUntil(
-      Promise.resolve()
-    );
-  }
-});
-
-// Push Notifications Event Handler
-self.addEventListener('push', (event) => {
-  const title = 'PestiLog';
-  const options = {
-    body: event.data ? event.data.text() : 'Notifikasi PestiLog',
-    icon: 'icon-192.png',
-    badge: 'icon-192.png'
-  };
-  event.waitUntil(self.registration.showNotification(title, options));
-});
-
-// Notification Click Event Handler
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(
-    clients.openWindow && clients.openWindow('./index.html')
   );
 });
